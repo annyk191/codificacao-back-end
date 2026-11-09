@@ -1,0 +1,31 @@
+{
+  "texto": "Hoje foi um dia incrível, estou linda e aprendendo programação!",
+  "autor": "Anny Karolinny",
+  "data": "2026-10-20",
+  "curtidas":  [
+    "Sidney",
+    "alerrandro",
+    "mainara",
+    "tom holland"
+  ],
+  "comentarios": [
+    {
+      "autor": "sidney",
+      "texto": "Parabéns, continue assim sempre linda e inteligente!"
+    },
+    {
+       "autor": "alerrandro",
+      "texto": "67"
+    },
+    {
+        "autor": "mainara",
+      "texto": "Sucesso nos estudos gataa"
+    
+    },
+    {
+     "autor": "tom holland",
+      "texto": "perfeitaaaa"
+    
+    }
+  ]
+}

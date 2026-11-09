@@ -1,0 +1,18 @@
+{
+    "nome":"Anny karolinny ",
+    " matricula": "2026TISENAI02",
+    "dataNascimento": "2005-01-01",
+    "curso": "Tecnico em Desenvolvimento de sistemas",
+    "disciplinas":[
+       { "nome": "banco de dados", "nota":9.5},
+       { "nome": "desenvolvimento WEB", "nota":8.8}
+    ],
+    "endereco":{
+        "avenida": "decima oitava",
+        "numero": 1922,
+        "bairro": "Marabaixo 3",
+        "cidade": "Macapá",
+        "estado": "Amapá",
+        "cep": "68909857"
+    }
+}
