@@ -4,6 +4,7 @@ import { Model } from "mongoose";
 import { CreateAlunoDto } from "./dto/create-aluno.dto.js";
 import { UpdateAlunoDto } from "./dto/update-aluno.dto.js";
 import { Aluno, alunoDoc } from "./schemas/aluno.schemas.js";
+import { promises } from "dns";
 
 @Injectable()
 export class alunosService{
@@ -15,13 +16,34 @@ export class alunosService{
     //!U-UPDATE (ATUALIZAR)
     //!D-DELETE (APAGAR)
 
-async create(createAlunoDto: CreateAlunoDto): Promise<Aluno> {
-    const novoAluno = new this.alunoModel(createAlunoDto);
-    return novoAluno.save();
+ async create(createAlunoDto: CreateAlunoDto): Promise<Aluno> {
+   const novoAluno = new this.alunoModel(createAlunoDto);
+     return novoAluno.save();
 }
     
- async findALL(): Promise <Aluno[]>{
-        return this.alunoModel.find().exec();
+//  async findALL(): Promise <Aluno[]>{
+//         return this.alunoModel.find().exec();
+//     }
+
+
+//! método para buscar os alunos com paginação
+
+    async findpage(page:number, limit:number){
+        const skip = (page - 1 )* limit;
+        const [data, total]= await Promise.all([
+            this.alunoModel.find().skip(skip).limit(limit).exec(),
+            this.alunoModel.countDocuments().exec(),
+        ]);
+
+        return {
+        data,
+        meta:{
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        },
+    };
     }
 
     async findOne(id : string): Promise<Aluno>{
