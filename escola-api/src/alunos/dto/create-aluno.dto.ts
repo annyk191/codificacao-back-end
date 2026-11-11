@@ -34,7 +34,7 @@ export class CreateAlunoDto {
   idade: number;
 
   @ApiProperty({
-    example:'999',
+    example:'9999',
     description:'matricula do aluno'
   })
   @IsString()
