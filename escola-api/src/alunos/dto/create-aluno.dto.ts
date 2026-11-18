@@ -52,5 +52,5 @@ export class CreateAlunoDto {
   @ArrayMinSize(1,{
     message:'O aluno deve estar matriculado em pelo menos um curso'
   })
-  curso: string[];
+  cursos: string[];
 }
