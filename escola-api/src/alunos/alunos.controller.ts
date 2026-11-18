@@ -1,3 +1,4 @@
+
 import { Controller,
     Get,
     Post,
@@ -8,7 +9,7 @@ import { Controller,
     Query,
     DefaultValuePipe,
     ParseIntPipe} from "@nestjs/common";
-import { alunosService } from "./alunos.service.js";
+import { AlunosService } from "./alunos.service.js";
 import { CreateAlunoDto } from "./dto/create-aluno.dto.js";
 import { UpdateAlunoDto } from "./dto/update-aluno.dto.js";
 import { ApiTags, ApiResponse,ApiOperation, ApiQuery } from "@nestjs/swagger";
@@ -16,7 +17,7 @@ import { ApiTags, ApiResponse,ApiOperation, ApiQuery } from "@nestjs/swagger";
 @ApiTags('alunos')
 @Controller('alunos')
 export class alunosController{
-    constructor(private readonly AlunosServise:alunosService){}
+    constructor(private readonly AlunosServise:AlunosService){}
 
     @Post()
     @ApiOperation({
@@ -114,7 +115,7 @@ export class alunosController{
         @Query('orderBy')orderbY?:string,
         @Query('orderDirection')orderDirection?: 'asc' | 'desc',
     ){
-        return this.AlunosServise.findpagefilter(
+        return this.AlunosServise.findPageFilter(
             page,
             limit,
             nome,
@@ -172,3 +173,4 @@ export class alunosController{
         return this.AlunosServise.remove(id);
     }
 }
+
