@@ -1,110 +1,129 @@
-import { Injectable,
-     NotFoundException,
-     ConflictException,
-     InternalServerErrorException
-     } from "@nestjs/common";
+
+import { Injectable, NotFoundException, ConflictException, InternalServerErrorException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { CreateAlunoDto } from "./dto/create-aluno.dto.js";
 import { UpdateAlunoDto } from "./dto/update-aluno.dto.js";
-import { Aluno, alunoDoc } from "./schemas/aluno.schemas.js";
-import {MongoServerError} from "mongodb";
+import { Aluno, AlunoDoc } from "./schemas/aluno.schemas.js";
+import { MongoServerError } from 'mongodb';
 
 @Injectable()
-export class alunosService{
-    constructor( @InjectModel(Aluno.name) private alunoModel: Model<alunoDoc> ) {}
+export class AlunosService {
+    constructor(@InjectModel(Aluno.name) private alunoModel: Model<AlunoDoc>) {}
 
-    //!CRUD
-    //!C-CREATE (CRIAR)
-    //!R-READ (LER/CONSULTAR)
-    //!U-UPDATE (ATUALIZAR)
-    //!D-DELETE (APAGAR)
+    //CRUD
+    // C - CREATE (CRIAR)
+    // R - READ (LER/CONSULTAR)
+    // U - UPDATE (ATUALIZAR)
+    // D - DELETE (APAGAR)
 
- async create(createAlunoDto: CreateAlunoDto): Promise<Aluno> {
-    try{
-         const novoAluno = new this.alunoModel(createAlunoDto);
-     return await novoAluno.save();
-    }catch(error:unknown){
-        if(
-            error instanceof MongoServerError
-            &&
-            error.code ===11000
-        ){
-            throw new ConflictException ('já existe um aluno cadastrado com essa matricula');
+    async create(CreateAlunoDto: CreateAlunoDto): Promise<Aluno> {
+        try {
+            const createAluno = new this.alunoModel(CreateAlunoDto);
+            return await createAluno.save();
+        } catch (error: unknown) {
+            if (
+                error instanceof MongoServerError &&
+                error.code === 11000
+            ) {
+                throw new ConflictException('Já existe um aluno cadastrado com essa matrícula');
+            }
+            throw new InternalServerErrorException('Erro ao Processar o cadastro do Aluno');
         }
-            throw new InternalServerErrorException ('errro ao processar o cadastro do aluno');
     }
-  
-}
-    
-//  async findALL(): Promise <Aluno[]>{
-//         return this.alunoModel.find().exec();
-//     }
 
-
-//! método para buscar os alunos com paginação
-
-    async findpagefilter(
-        page:number,
-         limit:number,
-         nome?: string,
+    //Método para buscar os alunos com paginação
+    async findPageFilter(
+        page: number,
+        limit: number,
+        nome?: string,
         curso?: string,
         orderBy?: string,
-        orderDirection?:'asc' | 'desc',){
-        const skip = (page - 1 )* limit;
-        const filter: any ={};
-        const sort: any ={};
+        orderDirection?: 'asc' | 'desc',
+    ) {
+        const skip = (page - 1) * limit;
+        const filter: any = { ativo: true };
+        const sort: any = {};
 
-        if(nome){
-            filter.nome ={
-                $regex: RegExp(nome,'i'),
+        if (nome) {
+            filter.nome = {
+                $regex: new RegExp(nome, 'i'),
             };
         }
-         if(curso){
-            filter.curso = curso;
-        }
-        if(orderBy){
-            sort[orderBy]=orderDirection === 'desc' ? -1:1;
+
+        if (curso) {
+            filter.cursos = curso;
         }
 
-        const [data, total]= await Promise.all([
-            await this.alunoModel.find(filter).sort(sort).skip(skip).limit(limit).exec(),
+        if (orderBy) {
+            sort[orderBy] = orderDirection === 'desc' ? -1 : 1;
+        }
+
+        const [data, total] = await Promise.all([
+            this.alunoModel.find(filter).sort(sort).skip(skip).limit(limit).exec(),
             this.alunoModel.countDocuments(filter).exec(),
         ]);
 
         return {
-        data,
-        meta:{
-            total,
-            page,
-            limit,
-            totalPages: Math.ceil(total / limit),
-        },
-    };
+            data,
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+            },
+        };
     }
 
-    async findOne(id : string): Promise<Aluno>{
-        const aluno = await this.alunoModel.findById(id).exec();
+    async findOne(id: string): Promise<Aluno> {
+        const aluno = await this.alunoModel.findOne({ _id: id, ativo: true }).exec();
 
-        if(!aluno){
+        if (!aluno) {
             throw new NotFoundException(`Aluno com ID ${id} não encontrado.`);
         }
+
         return aluno;
     }
-    async update (id: string, updateAlunoDto : UpdateAlunoDto): Promise<Aluno>{
-        const alunoAtualizado = await this.alunoModel.findByIdAndUpdate(id, updateAlunoDto, {
-            new: true }).exec();
 
-            if(!alunoAtualizado){
-                throw new NotFoundException(`Aluno com ID ${id} não encontrado.`);
-            }
-            return alunoAtualizado;
-    }
-    async remove (id : string): Promise<Aluno>{
-        const alunoRemovido = await this.alunoModel.findByIdAndDelete(id).exec();
-        if(!alunoRemovido){
+    async update(id: string, updateAlunoDto: UpdateAlunoDto): Promise<Aluno> {
+        const alunoAtualizado = await this.alunoModel.findByIdAndUpdate(
+            id,
+            updateAlunoDto,
+            { new: true }
+        ).exec();
+
+        if (!alunoAtualizado) {
             throw new NotFoundException(`Aluno com ID ${id} não encontrado.`);
         }
+
+        return alunoAtualizado;
+    }
+
+    async remove(id: string): Promise<Aluno> {
+        const alunoRemovido = await this.alunoModel.findByIdAndUpdate(
+            id,
+            { ativo: false },
+            { new: true }
+        ).exec();
+
+        if (!alunoRemovido) {
+            throw new NotFoundException(`Aluno com ID ${id} não encontrado.`);
+        }
+
         return alunoRemovido;
+    }
+
+    async restore(id: string): Promise<Aluno> {
+        const alunoRestaurado = await this.alunoModel.findByIdAndUpdate(
+            id,
+            { ativo: true },
+            { new: true }
+        ).exec();
+
+        if (!alunoRestaurado) {
+            throw new NotFoundException(`Aluno não encontrado pelo ID ${id}`);
+        }
+
+        return alunoRestaurado;
     }
 }
