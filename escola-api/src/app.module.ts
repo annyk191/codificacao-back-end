@@ -1,7 +1,7 @@
+
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AlunosModule } from './alunos/aluno.module.js';
-
 
 @Module({
   imports: [
